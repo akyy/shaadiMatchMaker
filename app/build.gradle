@@ -1,0 +1,195 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+
+
+    //Variables
+    def STRING = "String"
+    def INT = "int"
+    def VARIABLE_BASE_URL = "BASE_URL"
+    def VARIABLE_APP_ENVIRONMENT = "APP_ENVIRONMENT"
+    def VARIABLE_DATABASE_VERSION = "DATABASE_VERSION"
+
+    //Values
+    def VALUE_APP_ENVIRONMENT_UAT = '"UAT"'
+    def VALUE_APP_ENVIRONMENT_LIVE = '"LIVE"'
+
+    def VALUE_BASE_URL_UAT = '"https://randomuser.me"'
+    def VALUE_BASE_URL_LIVE = '"https://randomuser.me"'
+
+    def VALUE_DATABASE_VERSION_UAT = '1'
+    def VALUE_DATABASE_VERSION_LIVE = '1'
+
+    def KEY_PASSWORD = '"shaaadiMatchMakerandroid"'
+    def KEYSTORE_PASSWORD = '"shaaadiMatchMakerandroid"'
+
+
+    defaultConfig {
+        applicationId "com.shaadi.match.maker"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName ""
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    dexOptions {
+        javaMaxHeapSize "4G"
+    }
+
+    signingConfigs {
+
+        /* debug {
+            keyAlias 'matchMakerDebug'
+            keyPassword KEY_PASSWORD
+            storeFile file('../keystoreRelease/matchMakerDebug.keystore')
+            storePassword KEYSTORE_PASSWORD
+            //Organisation - matchmaker
+        }*/
+
+        release {
+            keyAlias 'shaaadiMatchMakerandroid'
+            keyPassword KEY_PASSWORD
+            storeFile file('../keystoreRelease/matchMakerRelease.keystore')
+            storePassword KEYSTORE_PASSWORD
+            //Organisation - matchmaker
+        }
+    }
+
+    buildTypes {
+
+        debug {
+            applicationIdSuffix ".debug"
+            minifyEnabled false
+            debuggable true
+            zipAlignEnabled true
+            versionNameSuffix "1.0.0"
+            buildConfigField STRING, VARIABLE_BASE_URL, VALUE_BASE_URL_UAT
+            buildConfigField INT, VARIABLE_DATABASE_VERSION, VALUE_DATABASE_VERSION_UAT
+            buildConfigField STRING, VARIABLE_APP_ENVIRONMENT, VALUE_APP_ENVIRONMENT_UAT
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+            manifestPlaceholders = [
+                    appIcon     : "@mipmap/ic_launcher",
+                    appRoundIcon: "@mipmap/ic_launcher_round"
+            ]
+        }
+
+        release {
+            minifyEnabled true
+            debuggable false
+            zipAlignEnabled true
+            versionNameSuffix "1.0.0"
+            buildConfigField STRING, VARIABLE_BASE_URL, VALUE_BASE_URL_LIVE
+            buildConfigField INT, VARIABLE_DATABASE_VERSION, VALUE_DATABASE_VERSION_LIVE
+            buildConfigField STRING, VARIABLE_APP_ENVIRONMENT, VALUE_APP_ENVIRONMENT_LIVE
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            manifestPlaceholders = [
+                    appIcon     : "@mipmap/ic_launcher",
+                    appRoundIcon: "@mipmap/ic_launcher_round"
+            ]
+        }
+
+    }
+
+    applicationVariants.all { variant ->
+        renameAPK(variant)
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+}
+
+def renameAPK(variant) {
+    variant.outputs.all { output ->
+        def buildType = variant.variantData.variantConfiguration.buildType.name
+        def fileName = assignNewBuildTypeName(buildType) + " v" + variant.versionName + ".apk"
+        outputFileName = fileName
+    }
+}
+
+def assignNewBuildTypeName(String buildType) {
+    def newBuildTypeName = ""
+    if (buildType == "debug") {
+        newBuildTypeName = "ShaadiMatchMaker UAT"
+    } else if (buildType == "release") {
+        newBuildTypeName = "ShaadiMatchMaker LIVE"
+    }
+    return newBuildTypeName
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    //com.android.support
+    implementation "com.android.support:design:$rootProject.androidSupport"
+    implementation "com.android.support:support-v4:$rootProject.androidSupport"
+    implementation "com.android.support:recyclerview-v7:$rootProject.androidSupport"
+    implementation "com.android.support:cardview-v7:$rootProject.androidSupport"
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+
+    //retrofit
+    implementation "com.squareup.retrofit2:retrofit:$rootProject.retrofitVersion"
+    implementation 'com.google.code.gson:gson:googleGsonVersion'
+    implementation "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
+    implementation "com.squareup.okhttp3:okhttp:$rootProject.retrofitOkhttp3Version"
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+
+    // Room components
+    implementation "android.arch.persistence.room:runtime:$rootProject.roomVersion"
+    annotationProcessor "android.arch.persistence.room:compiler:$rootProject.roomVersion"
+    androidTestImplementation "android.arch.persistence.room:testing:$rootProject.roomVersion"
+
+    // Lifecycle components
+    implementation "android.arch.lifecycle:extensions:$rootProject.archLifecycleVersion"
+    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.archLifecycleVersion"
+
+    //Glide
+    implementation "com.github.bumptech.glide:glide:$rootProject.glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$rootProject.glideVersion"
+
+    //Multidex
+    implementation 'com.android.support:multidex:1.0.3'
+
+    // Add Dagger dependencies
+    implementation "com.google.dagger:dagger:$rootProject.daggerVersion"
+    annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
+    implementation "com.google.dagger:dagger-android:$rootProject.daggerVersion"
+    implementation "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
+
+    //Gson
+    implementation 'com.google.code.gson:gson:2.8.4'
+
+
+    // Circular image
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
+
+    //loader
+    implementation "com.airbnb.android:lottie:$lottieVersion"
+
+
+}
