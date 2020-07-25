@@ -91,9 +91,9 @@ android {
         }
 
         release {
-            minifyEnabled true
+            minifyEnabled false
             debuggable false
-            zipAlignEnabled true
+            zipAlignEnabled false
             versionNameSuffix "1.0.0"
             buildConfigField STRING, VARIABLE_BASE_URL, VALUE_BASE_URL_LIVE
             buildConfigField INT, VARIABLE_DATABASE_VERSION, VALUE_DATABASE_VERSION_LIVE
